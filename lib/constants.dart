@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'Screens/about_page.dart';
 import 'Screens/contact_page.dart';
 import 'Screens/landing_page.dart';
-import 'Screens/splash_page.dart';
 import 'Screens/work_page.dart';
 
 const kScreenTitlePadding = EdgeInsets.all(15);
@@ -15,24 +14,27 @@ const kAppBarHeightL = Size.fromHeight(100);
 const kAppBarHeightS = Size.fromHeight(60);
 const kSymPadLarge = EdgeInsets.symmetric(horizontal: 60);
 const kSymPadSmall = EdgeInsets.symmetric(horizontal: 28);
+const kCardPaddingL = EdgeInsets.all(16.0);
 
+const kAppName = "DeTrack POD Downloader";
+
+// Remember to add new menu titles here when a new page is created
 const kMenuTitles = [
   ['HOME', LandingPage.id],
-  ['ABOUT', AboutPage.id],
-  ['WORK', WorkPage.id],
-  ['CONTACT', ContactPage.id],
+  // ['ABOUT', AboutPage.id],
+  // ['WORK', WorkPage.id],
+  // ['CONTACT', ContactPage.id],
 ];
 
 ThemeData themeData = ThemeData(
   fontFamily: "RobotoMono",
-  canvasColor: Color(0xff393e46),
-  scaffoldBackgroundColor: Color(0xff393e46),
-  primaryColor: Color(0xff393e46),
-  primaryColorLight: Color(0xFFaad8d3),
-  accentColor: Color(0xFF00adb5),
+  canvasColor: Color(0xFF120303),
+  scaffoldBackgroundColor: Color(0xFF120303),
+  primaryColor: Color(0xFF120303),
+  primaryColorLight: Color(0xFF460C0C),
   errorColor: Color(0xFFFF6933),
   backgroundColor: Color(0xFFeeeeee),
-  cardColor: Colors.white,
+  cardColor: Color(0xFF230606),
   textTheme: TextTheme(
     headline1: TextStyle(
       color: Color(0xFFeeeeee),
@@ -44,10 +46,20 @@ ThemeData themeData = ThemeData(
       fontSize: 40,
       fontWeight: FontWeight.w500,
     ),
+    headline3: TextStyle(
+      color: Color(0xFFeeeeee),
+      fontSize: 22,
+      fontWeight: FontWeight.w400,
+    ),
     headline5: TextStyle(
       color: Color(0xFFeeeeee),
       fontSize: 18,
       fontWeight: FontWeight.w200,
+    ),
+  ),
+  colorScheme: ColorScheme.fromSwatch().copyWith(
+    secondary: Color(
+      0xFF00adb5,
     ),
   ),
 );

@@ -55,7 +55,7 @@ class _MasterAppBarState extends State<MasterAppBar>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TitleTextButton(
-                  buttonText: "Isaac Marcus",
+                  buttonText: kAppName,
                   pressedFunction: () {
                     Navigator.pushReplacementNamed(context, LandingPage.id);
                     if (isDrawerOpen()) {

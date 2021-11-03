@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 /* --------------------------------------------------------------------------
 
 Page Title: Landing Page
-Widget Description: Landing Page to welcome visitors
+Widget Description: Landing Page for the app
 
 -----------------------------------------------------------------------------*/
 
@@ -27,6 +27,7 @@ class _LandingPageState extends State<LandingPage>
   void initState() {
     super.initState();
 
+    // initialize animation controller for drawer slider
     _drawerSlideController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
@@ -39,6 +40,7 @@ class _LandingPageState extends State<LandingPage>
     super.dispose();
   }
 
+  // function to check on the menu drawer, only applies in mobile size
   bool _isDrawerClosed() {
     return _drawerSlideController.value == 0.0;
   }
@@ -48,7 +50,8 @@ class _LandingPageState extends State<LandingPage>
     return Scaffold(
       appBar: PreferredSize(
         child: MasterAppBar(drawerSlideController: _drawerSlideController),
-        preferredSize: MediaQuery.of(context).size.width >= 725
+        preferredSize: MediaQuery.of(context).size.width >=
+                725 // checks screen size and applies formatting accordingly
             ? kAppBarHeightL
             : kAppBarHeightS,
       ),
@@ -79,17 +82,39 @@ class _LandingPageState extends State<LandingPage>
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Hero(
-            tag: "title",
-            child: Center(
-              child: Text(
-                "TECHNOLOGY, AUDIO, DESIGN",
-                style: MediaQuery.of(context).size.width >= 725
-                    ? themeData.textTheme.headline1
-                    : themeData.textTheme.headline2,
+          // Hero(
+          //   tag: "title",
+          //   child: Center(
+          //     child: Text(
+          //       "Collections POD Downloader",
+          //       style: MediaQuery.of(context).size.width >= 725
+          //           ? themeData.textTheme.headline1
+          //           : themeData.textTheme.headline2,
+          //     ),
+          //   ),
+          // ),
+          Center(
+            child: Card(
+              color: themeData.cardColor,
+              elevation: 5.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: Padding(
+                padding: kCardPaddingL,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Collections Download",
+                      style: themeData.textTheme.headline3,
+                    ),
+                  ],
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

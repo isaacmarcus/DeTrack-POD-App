@@ -22,9 +22,9 @@ class MyApp extends StatelessWidget {
       routes: {
         SplashPage.id: (context) => SplashPage(),
         LandingPage.id: (context) => LandingPage(),
-        WorkPage.id: (context) => WorkPage(),
-        AboutPage.id: (context) => AboutPage(),
-        ContactPage.id: (context) => ContactPage(),
+        // WorkPage.id: (context) => WorkPage(),
+        // AboutPage.id: (context) => AboutPage(),
+        // ContactPage.id: (context) => ContactPage(),
       },
     );
   }
