@@ -35,6 +35,7 @@ ThemeData themeData = ThemeData(
   errorColor: Color(0xFFFF6933),
   backgroundColor: Color(0xFFeeeeee),
   cardColor: Color(0xFF230606),
+  primaryTextTheme: Typography.whiteCupertino,
   textTheme: TextTheme(
     headline1: TextStyle(
       color: Color(0xFFeeeeee),
@@ -48,62 +49,47 @@ ThemeData themeData = ThemeData(
     ),
     headline3: TextStyle(
       color: Color(0xFFeeeeee),
-      fontSize: 22,
+      fontSize: 28,
       fontWeight: FontWeight.w400,
+    ),
+    headline4: TextStyle(
+      color: Color(0xFFeeeeee),
+      fontSize: 20,
+      fontWeight: FontWeight.w300,
     ),
     headline5: TextStyle(
       color: Color(0xFFeeeeee),
       fontSize: 18,
+      fontWeight: FontWeight.w300,
+    ),
+    headline6: TextStyle(
+      color: Color(0xFFeeeeee),
+      fontSize: 16,
+      fontWeight: FontWeight.w300,
+    ),
+    subtitle1: TextStyle(
+      color: Color(0xFFeeeeee),
+      fontSize: 14,
+      fontWeight: FontWeight.w200,
+    ),
+    subtitle2: TextStyle(
+      color: Color(0xFF999999),
+      fontSize: 14,
+      fontWeight: FontWeight.w200,
+    ),
+    bodyText1: TextStyle(
+      color: Color(0xFFeeeeee),
+      fontSize: 12,
+      fontWeight: FontWeight.w200,
+    ),
+    bodyText2: TextStyle(
+      color: Color(0xFFeeeeee),
+      fontSize: 12,
       fontWeight: FontWeight.w200,
     ),
   ),
   colorScheme: ColorScheme.fromSwatch().copyWith(
-    secondary: Color(
-      0xFF00adb5,
-    ),
+    secondary: Color(0xFFFF7847),
+    primary: Color(0xFFFF9670),
   ),
 );
-
-// ThemeData themeData2 = ThemeData.dark().copyWith(
-//   primaryColor: Color(0xff393e46),
-//   primaryColorLight: Color(0xFFaad8d3),
-//   accentColor: Color(0xFF00adb5),
-//   errorColor: Color(0xFFFF6933),
-//   backgroundColor: Color(0xFFeeeeee),
-//   cardColor: Colors.white,
-//   scaffoldBackgroundColor: Colors.white,
-//   textTheme: TextTheme(
-//     bodyText2: TextStyle(color: Colors.black54),
-//     headline1: TextStyle(
-//       color: Colors.black87,
-//       fontSize: 24,
-//       fontWeight: FontWeight.w500,
-//     ),
-//     headline2: TextStyle(
-//       color: Colors.black87,
-//       fontSize: 18,
-//       fontWeight: FontWeight.w400,
-//     ),
-//     headline3: TextStyle(
-//       color: Colors.black87,
-//       fontSize: 18,
-//       fontWeight: FontWeight.w400,
-//     ),
-//     headline5: TextStyle(
-//       fontSize: 20,
-//       fontWeight: FontWeight.w400,
-//     ),
-//     caption: TextStyle(
-//       color: Colors.grey[600],
-//       fontSize: 14,
-//       fontWeight: FontWeight.w400,
-//     ),
-//     subtitle1: TextStyle(
-//       color: Colors.black,
-//       fontSize: 14,
-//       fontWeight: FontWeight.w300,
-//     ),
-//   ).apply(
-//     fontFamily: 'RobotoMono',
-//   ),
-// );
