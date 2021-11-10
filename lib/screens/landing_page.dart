@@ -33,6 +33,11 @@ class _LandingPageState extends State<LandingPage>
       vsync: this,
       duration: const Duration(milliseconds: 150),
     );
+
+    // Initialize today's date
+    _range = DateFormat('dd/MM/yyyy').format(DateTime.now()).toString() +
+        ' - ' +
+        DateFormat('dd/MM/yyyy').format(DateTime.now()).toString();
   }
 
   @override
@@ -50,6 +55,7 @@ class _LandingPageState extends State<LandingPage>
   String _dateCount = '';
   String _range = '';
   String _rangeCount = '';
+  String _apiKey = "4840603d74969363341bd6db9637d635971369c873959bd5";
 
   /// The method for [DateRangePickerSelectionChanged] callback, which will be
   /// called whenever a selection changed on the date picker widget.
@@ -148,74 +154,114 @@ class _LandingPageState extends State<LandingPage>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Collections Download",
+                                "Collections",
                                 style: themeData.textTheme.headline3,
                               ),
                               SizedBox(
                                 height: 10,
                               ),
-                              Text(
-                                'Selected date: ' + _selectedDate,
-                                style: themeData.textTheme.subtitle1,
-                              ),
-                              Text(
-                                'Selected date count: ' + _dateCount,
-                                style: themeData.textTheme.subtitle1,
-                              ),
+                              // Text(
+                              //   'Selected date: ' + _selectedDate,
+                              //   style: themeData.textTheme.subtitle1,
+                              // ),
+                              // Text(
+                              //   'Selected date count: ' + _dateCount,
+                              //   style: themeData.textTheme.subtitle1,
+                              // ),
                               Text(
                                 'Selected range: ' + _range,
                                 style: themeData.textTheme.subtitle1,
                               ),
-                              Text(
-                                'Selected ranges count: ' + _rangeCount,
-                                style: themeData.textTheme.subtitle1,
-                              ),
+                              // Text(
+                              //   'Selected ranges count: ' + _rangeCount,
+                              //   style: themeData.textTheme.subtitle1,
+                              // ),
                             ],
                           ),
                         ],
                       ),
                       SizedBox(
-                        height: 10,
+                        height: 15,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width >= 725
-                                ? 300
-                                : MediaQuery.of(context).size.width * 0.75,
-                            height: 350,
-                            child: SfDateRangePicker(
-                              // Styling for the date picker
-                              selectionTextStyle: themeData.textTheme.headline6,
-                              rangeTextStyle: themeData.textTheme.subtitle1,
-                              headerStyle: DateRangePickerHeaderStyle(
-                                  textStyle: themeData.textTheme.headline4),
-                              monthViewSettings:
-                                  DateRangePickerMonthViewSettings(
-                                viewHeaderStyle: DateRangePickerViewHeaderStyle(
-                                    textStyle: themeData.textTheme.headline5),
-                              ),
-                              monthCellStyle: DateRangePickerMonthCellStyle(
-                                textStyle: themeData.textTheme.subtitle1,
-                                todayTextStyle: themeData.textTheme.subtitle1,
-                              ),
-                              yearCellStyle: DateRangePickerYearCellStyle(
-                                textStyle: themeData.textTheme.subtitle1,
-                                disabledDatesTextStyle:
-                                    themeData.textTheme.subtitle2,
-                                todayTextStyle: themeData.textTheme.subtitle1,
-                                leadingDatesTextStyle:
-                                    themeData.textTheme.subtitle2,
-                              ),
-                              viewSpacing: 5,
-                              onSelectionChanged: _onSelectionChanged,
-                              selectionMode: DateRangePickerSelectionMode.range,
-                              initialDisplayDate: DateTime.now(),
-                            ),
+                      // MAIN Date Picker Widget
+                      Container(
+                        margin: EdgeInsets.zero,
+                        width: double.infinity,
+                        child: Card(
+                          margin: EdgeInsets.zero,
+                          color: Color(0xFF340909),
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
                           ),
-                        ],
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              // Container to hold Date Range Picker
+                              Container(
+                                margin: EdgeInsets.only(top: 10),
+                                width: MediaQuery.of(context).size.width >= 725
+                                    ? 300
+                                    : MediaQuery.of(context).size.width * 0.75,
+                                child: SfDateRangePicker(
+                                  // Styling for the date picker
+                                  headerHeight: 50,
+                                  selectionTextStyle:
+                                      themeData.textTheme.headline6,
+                                  rangeTextStyle: themeData.textTheme.subtitle1,
+                                  headerStyle: DateRangePickerHeaderStyle(
+                                      textStyle: themeData.textTheme.headline4),
+                                  monthViewSettings:
+                                      DateRangePickerMonthViewSettings(
+                                    viewHeaderStyle:
+                                        DateRangePickerViewHeaderStyle(
+                                            textStyle:
+                                                themeData.textTheme.headline5),
+                                  ),
+                                  monthCellStyle: DateRangePickerMonthCellStyle(
+                                    textStyle: themeData.textTheme.subtitle1,
+                                    todayTextStyle:
+                                        themeData.textTheme.subtitle1,
+                                  ),
+                                  yearCellStyle: DateRangePickerYearCellStyle(
+                                    textStyle: themeData.textTheme.subtitle1,
+                                    disabledDatesTextStyle:
+                                        themeData.textTheme.subtitle2,
+                                    todayTextStyle:
+                                        themeData.textTheme.subtitle1,
+                                    leadingDatesTextStyle:
+                                        themeData.textTheme.subtitle2,
+                                  ),
+                                  viewSpacing: 5,
+                                  onSelectionChanged: _onSelectionChanged,
+                                  selectionMode:
+                                      DateRangePickerSelectionMode.range,
+                                  initialDisplayDate: DateTime.now(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          print("test");
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            "Download",
+                            style: themeData.textTheme.button,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(
+                            double.infinity,
+                            30,
+                          ),
+                        ),
                       ),
                     ],
                   ),

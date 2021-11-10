@@ -49,8 +49,8 @@ ThemeData themeData = ThemeData(
     ),
     headline3: TextStyle(
       color: Color(0xFFeeeeee),
-      fontSize: 28,
-      fontWeight: FontWeight.w400,
+      fontSize: 26,
+      fontWeight: FontWeight.w500,
     ),
     headline4: TextStyle(
       color: Color(0xFFeeeeee),
@@ -87,9 +87,24 @@ ThemeData themeData = ThemeData(
       fontSize: 12,
       fontWeight: FontWeight.w200,
     ),
+    button: TextStyle(
+      color: Color(0xFFeeeeee),
+      fontSize: 18,
+      fontWeight: FontWeight.w500,
+    ),
   ),
   colorScheme: ColorScheme.fromSwatch().copyWith(
     secondary: Color(0xFFFF7847),
     primary: Color(0xFFFF9670),
+  ),
+  buttonTheme: ButtonThemeData(
+    buttonColor: Color(0xFF4b1919),
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      primary: Color(0xFFaa3d16),
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+    ),
   ),
 );
