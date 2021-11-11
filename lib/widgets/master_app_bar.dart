@@ -52,6 +52,7 @@ class _MasterAppBarState extends State<MasterAppBar>
                 ? kSymPadLarge
                 : kSymPadSmall,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TitleTextButton(
@@ -63,6 +64,30 @@ class _MasterAppBarState extends State<MasterAppBar>
                     }
                   },
                 ),
+                SizedBox(
+                  width: 15,
+                ),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text("API Key: ", style: themeData.textTheme.subtitle1),
+                        Container(
+                          margin: EdgeInsets.zero,
+                          width: 300,
+                          child: TextField(
+                            decoration: InputDecoration(
+                                isDense: true, hintText: "Enter API Key here"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                Spacer(),
                 // Check if screen size is smaller than 725 logical pixels
                 MediaQuery.of(context).size.width >= 725
                     ? FullScreenABarRow()
