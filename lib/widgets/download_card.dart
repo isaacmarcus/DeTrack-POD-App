@@ -5,7 +5,9 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../constants.dart';
 
 class DownloadCard extends StatefulWidget {
-  const DownloadCard({Key? key}) : super(key: key);
+  final Function getData;
+
+  DownloadCard({required this.getData});
 
   @override
   _DownloadCardState createState() => _DownloadCardState();
@@ -17,16 +19,17 @@ class _DownloadCardState extends State<DownloadCard> {
     super.initState();
 
     // Initialize today's date
-    _range = DateFormat('dd/MM/yyyy').format(DateTime.now()).toString() +
-        ' - ' +
-        DateFormat('dd/MM/yyyy').format(DateTime.now()).toString();
+    _startDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    _endDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    _range = _startDate.toString() + ' - ' + _endDate.toString();
   }
 
   String _selectedDate = '';
   String _dateCount = '';
   String _range = '';
   String _rangeCount = '';
-  String _apiKey = "4840603d74969363341bd6db9637d635971369c873959bd5";
+  String _startDate = '';
+  String _endDate = '';
 
   /// The method for [DateRangePickerSelectionChanged] callback, which will be
   /// called whenever a selection changed on the date picker widget.
@@ -45,12 +48,10 @@ class _DownloadCardState extends State<DownloadCard> {
     /// multi range.
     setState(() {
       if (args.value is PickerDateRange) {
-        _range =
-            DateFormat('dd/MM/yyyy').format(args.value.startDate).toString() +
-                ' - ' +
-                DateFormat('dd/MM/yyyy')
-                    .format(args.value.endDate ?? args.value.startDate)
-                    .toString();
+        _startDate = DateFormat('dd/MM/yyyy').format(args.value.startDate);
+        _endDate = DateFormat('dd/MM/yyyy')
+            .format(args.value.endDate ?? args.value.startDate);
+        _range = _startDate.toString() + ' - ' + _endDate.toString();
       } else if (args.value is DateTime) {
         _selectedDate = args.value.toString();
       } else if (args.value is List<DateTime>) {
@@ -150,9 +151,10 @@ class _DownloadCardState extends State<DownloadCard> {
                 ),
               ),
               SizedBox(height: 10),
+              // Download Button
               ElevatedButton(
                 onPressed: () {
-                  print("test");
+                  widget.getData(_startDate, _endDate);
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:detrack_pod_dl_app/constants.dart';
@@ -5,8 +6,8 @@ import 'package:detrack_pod_dl_app/widgets/download_card.dart';
 import 'package:detrack_pod_dl_app/widgets/menu_drawer.dart';
 import 'package:detrack_pod_dl_app/widgets/master_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 /* --------------------------------------------------------------------------
 
@@ -25,6 +26,8 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _drawerSlideController;
+
+  String _apiKey = "4840603d74969363341bd6db9637d635971369c873959bd5";
 
   @override
   void initState() {
@@ -45,6 +48,37 @@ class _LandingPageState extends State<LandingPage>
   // function to check on the menu drawer, only applies in mobile size
   bool _isDrawerClosed() {
     return _drawerSlideController.value == 0.0;
+  }
+
+  void getData(startDate, endDate) async {
+    print(DateTime.parse(endDate).difference(DateTime.parse(startDate)).inDays);
+
+    Response response = await post(
+        Uri.parse('https://app.detrack.com/api/v1/collections/view/all.json'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'X-API-KEY': '4840603d74969363341bd6db9637d635971369c873959bd5'
+        },
+        body: jsonEncode(
+          <String, String>{
+            'date': '2021-11-12',
+          },
+        ));
+
+    if (response.statusCode == 200) {
+      // getDONumbers(response.body);
+    } else {
+      print(response.statusCode);
+    }
+  }
+
+  void getDONumbers(data) {
+    var collections = jsonDecode(data)["collections"];
+    for (var job in collections) {
+      if (job["display_tracking_status"].toString() == "Completed") {
+        print(job["do"].toString());
+      }
+    }
   }
 
   // ** Main build widget for the Page **
@@ -87,7 +121,9 @@ class _LandingPageState extends State<LandingPage>
         children: <Widget>[
           Center(
             // CARD WIDGET FOR COLLECTIONS DOWNLOADER
-            child: DownloadCard(),
+            child: DownloadCard(
+              getData: getData,
+            ),
           ),
         ],
       ),
