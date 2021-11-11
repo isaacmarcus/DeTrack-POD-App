@@ -138,9 +138,6 @@ class _LandingPageState extends State<LandingPage>
               child: Card(
                 color: themeData.cardColor,
                 elevation: 5.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
                 child: Padding(
                   padding: kCardPaddingL,
                   child: Column(
@@ -191,9 +188,6 @@ class _LandingPageState extends State<LandingPage>
                           margin: EdgeInsets.zero,
                           color: Color(0xFF340909),
                           elevation: 5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.max,
