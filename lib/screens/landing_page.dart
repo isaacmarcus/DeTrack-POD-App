@@ -50,9 +50,7 @@ class _LandingPageState extends State<LandingPage>
     return _drawerSlideController.value == 0.0;
   }
 
-  void getData(startDate, endDate) async {
-    print(DateTime.parse(endDate).difference(DateTime.parse(startDate)).inDays);
-
+  Future<dynamic> postCollectionDate(date) async {
     Response response = await post(
         Uri.parse('https://app.detrack.com/api/v1/collections/view/all.json'),
         headers: <String, String>{
@@ -61,14 +59,40 @@ class _LandingPageState extends State<LandingPage>
         },
         body: jsonEncode(
           <String, String>{
-            'date': '2021-11-12',
+            'date': date,
           },
         ));
-
     if (response.statusCode == 200) {
-      // getDONumbers(response.body);
+      return response;
     } else {
-      print(response.statusCode);
+      return response.statusCode;
+    }
+  }
+
+  void getData(startDate, endDate) async {
+    // calculate days between start date and end date selected
+    int dateRange = endDate.difference(startDate).inDays;
+    for (int i = 0; i <= dateRange; i++) {
+      DateTime curDate = startDate.add(Duration(
+          days: i)); // create new var to store new date; refer to .add docs
+      // post to API to get json data on current date
+      Response response = await post(
+          Uri.parse('https://app.detrack.com/api/v1/collections/view/all.json'),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+            'X-API-KEY': '4840603d74969363341bd6db9637d635971369c873959bd5'
+          },
+          body: jsonEncode(
+            <String, String>{
+              'date': DateFormat('yyyy-MM-dd').format(curDate),
+            },
+          ));
+      // check response if successful, if so execute getDoNumbers
+      if (response.statusCode == 200) {
+        getDONumbers(response.body);
+      } else {
+        print(response.statusCode);
+      }
     }
   }
 

@@ -19,17 +19,17 @@ class _DownloadCardState extends State<DownloadCard> {
     super.initState();
 
     // Initialize today's date
-    _startDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
-    _endDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
-    _range = _startDate.toString() + ' - ' + _endDate.toString();
+    _range = DateFormat('dd/MM/yyyy').format(_startDate) +
+        ' - ' +
+        DateFormat('dd/MM/yyyy').format(_endDate);
   }
 
   String _selectedDate = '';
   String _dateCount = '';
   String _range = '';
   String _rangeCount = '';
-  String _startDate = '';
-  String _endDate = '';
+  DateTime _startDate = DateTime.now();
+  DateTime _endDate = DateTime.now();
 
   /// The method for [DateRangePickerSelectionChanged] callback, which will be
   /// called whenever a selection changed on the date picker widget.
@@ -48,10 +48,11 @@ class _DownloadCardState extends State<DownloadCard> {
     /// multi range.
     setState(() {
       if (args.value is PickerDateRange) {
-        _startDate = DateFormat('dd/MM/yyyy').format(args.value.startDate);
-        _endDate = DateFormat('dd/MM/yyyy')
-            .format(args.value.endDate ?? args.value.startDate);
-        _range = _startDate.toString() + ' - ' + _endDate.toString();
+        _startDate = args.value.startDate;
+        _endDate = args.value.endDate ?? args.value.startDate;
+        _range = DateFormat('dd/MM/yyyy').format(_startDate) +
+            ' - ' +
+            DateFormat('dd/MM/yyyy').format(_endDate);
       } else if (args.value is DateTime) {
         _selectedDate = args.value.toString();
       } else if (args.value is List<DateTime>) {
