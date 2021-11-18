@@ -155,7 +155,9 @@ class _DownloadCardState extends State<DownloadCard> {
               // Download Button
               ElevatedButton(
                 onPressed: () {
-                  widget.getData(_startDate, _endDate);
+                  setState(() {
+                    widget.getData(_startDate, _endDate);
+                  });
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
