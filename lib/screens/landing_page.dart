@@ -69,6 +69,8 @@ class _LandingPageState extends State<LandingPage>
     }
   }
 
+  List masterDoList = [];
+
   void getData(startDate, endDate) async {
     // calculate days between start date and end date selected
     int dateRange = endDate.difference(startDate).inDays;
@@ -89,20 +91,27 @@ class _LandingPageState extends State<LandingPage>
           ));
       // check response if successful, if so execute getDoNumbers
       if (response.statusCode == 200) {
-        getDONumbers(response.body);
+        masterDoList.add(getDONumbers(response.body));
       } else {
         print(response.statusCode);
       }
     }
   }
 
-  void getDONumbers(data) {
+  List getDONumbers(data) {
+    // decode json body
     var collections = jsonDecode(data)["collections"];
+    // loop through body to find all dos
+    var curDoList = [];
     for (var job in collections) {
+      // only take into account dos that are completed
       if (job["display_tracking_status"].toString() == "Completed") {
-        print(job["do"].toString());
+        print(job['date'].toString());
+        print(job['do'].toString());
+        curDoList.add([job['date'].toString(), job['do'].toString()]);
       }
     }
+    return curDoList;
   }
 
   // ** Main build widget for the Page **
