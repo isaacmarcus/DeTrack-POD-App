@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -6,8 +7,9 @@ import '../constants.dart';
 
 class DownloadCard extends StatefulWidget {
   final Function getData;
+  final Function sendFolder;
 
-  DownloadCard({required this.getData});
+  DownloadCard({required this.getData, required this.sendFolder});
 
   @override
   _DownloadCardState createState() => _DownloadCardState();
@@ -28,6 +30,7 @@ class _DownloadCardState extends State<DownloadCard> {
   String _dateCount = '';
   String _range = '';
   String _rangeCount = '';
+  String _folder = '';
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now();
 
@@ -59,6 +62,19 @@ class _DownloadCardState extends State<DownloadCard> {
         _dateCount = args.value.length.toString();
       } else {
         _rangeCount = args.value.length.toString();
+      }
+    });
+  }
+
+  // Function to select local folder
+  void _selectFolder() async {
+    setState(() async {
+      String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+
+      if (selectedDirectory == null) {
+        // User canceled the picker
+      } else {
+        _folder = selectedDirectory;
       }
     });
   }
@@ -100,7 +116,7 @@ class _DownloadCardState extends State<DownloadCard> {
               SizedBox(
                 height: 15,
               ),
-              // MAIN Date Picker Widget
+              // --- MAIN Date Picker Widget ---
               Container(
                 margin: EdgeInsets.zero,
                 width: double.infinity,
@@ -152,7 +168,35 @@ class _DownloadCardState extends State<DownloadCard> {
                 ),
               ),
               SizedBox(height: 10),
-              // Download Button
+              Text(
+                'Selected Folder: ' + _folder,
+                style: themeData.textTheme.subtitle1,
+              ),
+              SizedBox(height: 10),
+              // --- Choose Folder Button ---
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _selectFolder();
+                    widget.sendFolder(_folder);
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Choose DL Folder",
+                    style: themeData.textTheme.button,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(
+                    double.infinity,
+                    30,
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              // --- Download Button ---
               ElevatedButton(
                 onPressed: () {
                   setState(() {

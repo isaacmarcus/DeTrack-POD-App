@@ -1,17 +1,19 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' as io;
 import 'dart:ui';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html';
 
 import 'package:detrack_pod_dl_app/constants.dart';
 import 'package:detrack_pod_dl_app/services/photo_album.dart';
 import 'package:detrack_pod_dl_app/widgets/download_card.dart';
 import 'package:detrack_pod_dl_app/widgets/menu_drawer.dart';
 import 'package:detrack_pod_dl_app/widgets/master_app_bar.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:file_picker/file_picker.dart';
 
 /* --------------------------------------------------------------------------
 
@@ -54,6 +56,13 @@ class _LandingPageState extends State<LandingPage>
     return _drawerSlideController.value == 0.0;
   }
 
+  String selectedDirectory = '';
+
+  void pickFolder(date) {
+    selectedDirectory = date;
+  }
+
+  // --- Function to post json to get all collection DOs based on date ---
   Future<dynamic> postCollectionDate(date) async {
     Response response = await post(
         Uri.parse('https://app.detrack.com/api/v1/collections/view/all.json'),
@@ -76,6 +85,8 @@ class _LandingPageState extends State<LandingPage>
   List masterDoList = [];
   List masterPODList = [];
 
+  // --- Function to add DOs to master DO List ---
+  // --- also calls getDONumbers ---
   void getData(startDate, endDate) async {
     // calculate days between start date and end date selected
     int dateRange = endDate.difference(startDate).inDays;
@@ -110,7 +121,8 @@ class _LandingPageState extends State<LandingPage>
     // }
   }
 
-  // Function to return a list of DO numbers with the date associated
+  // --- Function to return a list of DO numbers with the date associated ---
+  // --- also calls getPODData ---
   List getDONumbers(data) {
     // decode json body
     var collections = jsonDecode(data)["collections"];
@@ -119,20 +131,33 @@ class _LandingPageState extends State<LandingPage>
     for (var job in collections) {
       // only take into account dos that are completed
       if (job["display_tracking_status"].toString() == "Completed") {
-        curDoList.add([job['date'].toString(), job['do'].toString()]);
-        getPODData([job['date'].toString(), job['do'].toString()]);
+        // create a list containing the details for this current DO
+        // TODO: make into a class object
+        List curDoDeits = [
+          job['date'].toString(),
+          job['do'].toString(),
+          job['addr_company'].toString(),
+          job['job_order'].toString(),
+        ];
+        curDoList.add(curDoDeits); // add to the current DO List
+        getPODData(curDoDeits); // call this function to dl DATA automatically
+        // use vvv to see json data and headers
+        // print(job.toString());
       }
     }
     return curDoList;
   }
 
+  // --- Function to parse data and download automatically ---
   void getPODData(data) async {
     String curDate = data[0];
     String curDO = data[1];
+    String curComp = data[2];
+    String curTime = data[3];
 
-    // HTTP Post response to server to get POD for associated DO and date
-    Response response = await post(
-        Uri.parse('https://app.detrack.com/api/v1/collections/pod.json'),
+    // ~http test for PDF BYTES~
+    Response responsePDF = await post(
+        Uri.parse('https://app.detrack.com/api/v1/collections/export.pdf'),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'X-API-KEY': '4840603d74969363341bd6db9637d635971369c873959bd5'
@@ -144,22 +169,25 @@ class _LandingPageState extends State<LandingPage>
           },
         ));
 
-    // print(response.body);
-    // Future<List<Photo>> curPhotoList = compute(parsePhotos, response.body);
-    // Directory tempDir = await getTemporaryDirectory();
-    // String tempPath = tempDir.path;
-    // File file = new File('$tempPath/$curDO.png');
-    // await file.writeAsBytes(response.bodyBytes);
-    masterPODList.add(response.bodyBytes);
-    // displayImage(file);
+    // ~Create a download anchor for web to automatically download to path~
+    final blob = Blob([responsePDF.bodyBytes]);
+    final url = Url.createObjectUrlFromBlob(blob);
+    final anchor = document.createElement('a') as AnchorElement
+      ..href = url
+      ..style.display = 'none'
+      ..download = "$curComp/_$curDate/_$curTime/_$curDO.pdf";
+    document.body!.children.add(anchor);
+    anchor.click();
+    document.body!.children.remove(anchor);
+    Url.revokeObjectUrl(url);
+
+    // add the PDF to the master POD List
+    setState(() {
+      masterPODList.add(responsePDF.bodyBytes);
+    });
   }
 
-  List<Photo> parsePhotos(String responseBody) {
-    final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-    return parsed.map<Photo>((json) => Photo.fromJson(json)).toList();
-  }
-
-  // ** Main build widget for the Page **
+  // *** Main build widget for the Page ***
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -187,7 +215,7 @@ class _LandingPageState extends State<LandingPage>
     );
   }
 
-  // Page Content builder
+  // --- Page Content builder ---
   Widget _buildContent() {
     return Padding(
       padding: MediaQuery.of(context).size.width >= 725
@@ -196,17 +224,19 @@ class _LandingPageState extends State<LandingPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // Card to view PODS on screen
           Card(
             child: Container(
               height: 400,
               width: 600,
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                  crossAxisCount: 1,
                 ),
                 itemCount: masterPODList.length,
                 itemBuilder: (context, index) {
-                  return Image.memory(masterPODList[index]);
+                  // return Image.memory(masterPODList[index]);
+                  return SfPdfViewer.memory(masterPODList[index]);
                 },
               ),
             ),
@@ -222,6 +252,7 @@ class _LandingPageState extends State<LandingPage>
                 // CARD WIDGET FOR COLLECTIONS DOWNLOADER
                 child: DownloadCard(
                   getData: getData,
+                  sendFolder: pickFolder,
                 ),
               ),
             ],
@@ -231,7 +262,7 @@ class _LandingPageState extends State<LandingPage>
     );
   }
 
-  // drawer builder
+  // --- drawer builder ---
   Widget _buildDrawer() {
     return AnimatedBuilder(
       animation: _drawerSlideController,

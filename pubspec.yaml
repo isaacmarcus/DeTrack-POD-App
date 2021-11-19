@@ -33,6 +33,8 @@ dependencies:
   syncfusion_flutter_datepicker: ^19.3.48
   http: ^0.13.4
   path_provider: ^2.0.7
+  syncfusion_flutter_pdfviewer: ^19.3.54-beta
+  file_picker: ^4.2.3
 
 dev_dependencies:
   flutter_test:
