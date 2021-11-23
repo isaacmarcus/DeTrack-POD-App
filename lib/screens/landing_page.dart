@@ -4,16 +4,19 @@ import 'dart:ui';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 
+import 'package:archive/archive.dart';
 import 'package:detrack_pod_dl_app/constants.dart';
 import 'package:detrack_pod_dl_app/services/photo_album.dart';
 import 'package:detrack_pod_dl_app/widgets/download_card.dart';
 import 'package:detrack_pod_dl_app/widgets/menu_drawer.dart';
 import 'package:detrack_pod_dl_app/widgets/master_app_bar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 /* --------------------------------------------------------------------------
 
@@ -82,12 +85,14 @@ class _LandingPageState extends State<LandingPage>
     }
   }
 
-  List masterDoList = [];
-  List masterPODList = [];
+  List masterDoList = []; // list with sorted DO Details
+  List masterPODList = []; // list to build viewer
+  List masterPODBytes = []; // list to contain PODs in bytes
 
   // --- Function to add DOs to master DO List ---
   // --- also calls getDONumbers ---
   void getData(startDate, endDate) async {
+    EasyLoading.show(status: 'loading...');
     // calculate days between start date and end date selected
     int dateRange = endDate.difference(startDate).inDays;
     // For loop to run through each day and extract the DO Numbers from that day
@@ -114,20 +119,19 @@ class _LandingPageState extends State<LandingPage>
         print(response.statusCode);
       }
     }
-    //
-
-    // for (List dailyList in masterDoList) {
-    //   print(dailyList);
-    // }
   }
 
   // --- Function to return a list of DO numbers with the date associated ---
   // --- also calls getPODData ---
-  List getDONumbers(data) {
+  Future<List> getDONumbers(data) async {
     // decode json body
     var collections = jsonDecode(data)["collections"];
     // loop through body to find all dos
     var curDoList = [];
+    // add to archivezip
+    var encoder = ZipEncoder();
+    var archive = Archive();
+
     for (var job in collections) {
       // only take into account dos that are completed
       if (job["display_tracking_status"].toString() == "Completed") {
@@ -140,22 +144,37 @@ class _LandingPageState extends State<LandingPage>
           job['job_order'].toString(),
         ];
         curDoList.add(curDoDeits); // add to the current DO List
-        getPODData(curDoDeits); // call this function to dl DATA automatically
+        // Call getPODData to create archivefile
+        ArchiveFile archiveFile = await compute(getPODData, curDoDeits);
+        // add current archive file to archive
+        archive.addFile(archiveFile);
+
         // use vvv to see json data and headers
         // print(job.toString());
       }
     }
+
+    // Create outputstream object
+    var outputStream = OutputStream(
+      byteOrder: LITTLE_ENDIAN,
+    );
+    // Create zipped bytes object
+    var bytes = encoder.encode(archive,
+        level: Deflate.BEST_COMPRESSION, output: outputStream);
+
+    generatePODZipDownload(bytes); // generate user download for zipped file
+
     return curDoList;
   }
 
   // --- Function to parse data and download automatically ---
-  void getPODData(data) async {
+  Future<ArchiveFile> getPODData(data) async {
     String curDate = data[0];
     String curDO = data[1];
     String curComp = data[2];
     String curTime = data[3];
 
-    // ~http test for PDF BYTES~
+    // ~http post for PDF BYTES~
     Response responsePDF = await post(
         Uri.parse('https://app.detrack.com/api/v1/collections/export.pdf'),
         headers: <String, String>{
@@ -169,22 +188,34 @@ class _LandingPageState extends State<LandingPage>
           },
         ));
 
-    // ~Create a download anchor for web to automatically download to path~
-    final blob = Blob([responsePDF.bodyBytes]);
-    final url = Url.createObjectUrlFromBlob(blob);
-    final anchor = document.createElement('a') as AnchorElement
-      ..href = url
-      ..style.display = 'none'
-      ..download = "$curComp/_$curDate/_$curTime/_$curDO.pdf";
-    document.body!.children.add(anchor);
-    anchor.click();
-    document.body!.children.remove(anchor);
-    Url.revokeObjectUrl(url);
+    // add current DO PDF to archivezip
+    ArchiveFile archiveFiles = ArchiveFile(
+        "$curComp\_$curDate\_$curTime\_$curDO.pdf",
+        responsePDF.bodyBytes.lengthInBytes,
+        responsePDF.bodyBytes);
+    print(archiveFiles);
 
     // add the PDF to the master POD List
     setState(() {
       masterPODList.add(responsePDF.bodyBytes);
     });
+
+    return archiveFiles;
+  }
+
+  void generatePODZipDownload(zipbytes) {
+    // ~Create a download anchor for web to automatically download to path~
+    final blob = Blob([zipbytes]);
+    final url = Url.createObjectUrlFromBlob(blob);
+    final anchor = document.createElement('a') as AnchorElement
+      ..href = url
+      ..style.display = 'none'
+      ..download = "PODList.zip";
+    document.body!.children.add(anchor);
+    anchor.click();
+    document.body!.children.remove(anchor);
+    Url.revokeObjectUrl(url);
+    EasyLoading.dismiss();
   }
 
   // *** Main build widget for the Page ***
@@ -225,22 +256,36 @@ class _LandingPageState extends State<LandingPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Card to view PODS on screen
-          Card(
-            child: Container(
-              height: 400,
-              width: 600,
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 1,
-                ),
-                itemCount: masterPODList.length,
-                itemBuilder: (context, index) {
-                  // return Image.memory(masterPODList[index]);
-                  return SfPdfViewer.memory(masterPODList[index]);
-                },
-              ),
-            ),
-          ),
+          MediaQuery.of(context).size.width >= 1025
+              ? Container(
+                  height: 465,
+                  width: MediaQuery.of(context).size.width * 0.4,
+                  child: Card(
+                    child: masterPODList.length != 0
+                        ? GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              childAspectRatio: 0.9,
+                              mainAxisSpacing: 10,
+                              crossAxisCount: 1,
+                            ),
+                            itemCount: masterPODList.length,
+                            itemBuilder: (context, index) {
+                              // return Image.memory(masterPODList[index]);
+                              return Container(
+                                  padding: EdgeInsets.all(15),
+                                  child:
+                                      SfPdfViewer.memory(masterPODList[index]));
+                            },
+                          )
+                        : Center(
+                            child: Text(
+                            "No PODs loaded...",
+                            style: themeData.textTheme.headline3,
+                          )),
+                  ),
+                )
+              : Container(),
           SizedBox(
             width: 100,
           ),
@@ -250,9 +295,13 @@ class _LandingPageState extends State<LandingPage>
             children: <Widget>[
               Center(
                 // CARD WIDGET FOR COLLECTIONS DOWNLOADER
-                child: DownloadCard(
-                  getData: getData,
-                  sendFolder: pickFolder,
+                child: Stack(
+                  children: <Widget>[
+                    DownloadCard(
+                      getData: getData,
+                      sendFolder: pickFolder,
+                    ),
+                  ],
                 ),
               ),
             ],

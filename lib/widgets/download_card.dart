@@ -66,19 +66,6 @@ class _DownloadCardState extends State<DownloadCard> {
     });
   }
 
-  // Function to select local folder
-  void _selectFolder() async {
-    setState(() async {
-      String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-
-      if (selectedDirectory == null) {
-        // User canceled the picker
-      } else {
-        _folder = selectedDirectory;
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -164,34 +151,6 @@ class _DownloadCardState extends State<DownloadCard> {
                         ),
                       ),
                     ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Selected Folder: ' + _folder,
-                style: themeData.textTheme.subtitle1,
-              ),
-              SizedBox(height: 10),
-              // --- Choose Folder Button ---
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _selectFolder();
-                    widget.sendFolder(_folder);
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Choose DL Folder",
-                    style: themeData.textTheme.button,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(
-                    double.infinity,
-                    30,
                   ),
                 ),
               ),
