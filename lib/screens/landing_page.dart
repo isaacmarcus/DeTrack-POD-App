@@ -92,7 +92,14 @@ class _LandingPageState extends State<LandingPage>
   // --- Function to add DOs to master DO List ---
   // --- also calls getDONumbers ---
   void getData(startDate, endDate) async {
-    EasyLoading.show(status: 'loading...');
+    String dateRangeString = DateFormat('yyyy-MM-dd').format(startDate) +
+        " to " +
+        DateFormat('yyyy-MM-dd').format(endDate);
+    // add to archivezip
+    var encoder = ZipEncoder();
+    var archive = Archive();
+    // Start loading popup
+    EasyLoading.show(status: 'downloading...');
     // calculate days between start date and end date selected
     int dateRange = endDate.difference(startDate).inDays;
     // For loop to run through each day and extract the DO Numbers from that day
@@ -113,24 +120,32 @@ class _LandingPageState extends State<LandingPage>
           ));
       // check response if successful, if so execute getDoNumbers
       if (response.statusCode == 200) {
-        masterDoList.add(getDONumbers(response.body));
+        masterDoList.add(await getDONumbers(response.body, archive));
         // print(masterDoList);
       } else {
         print(response.statusCode);
       }
     }
+
+    // Create outputstream object
+    var outputStream = OutputStream(
+      byteOrder: LITTLE_ENDIAN,
+    );
+    // Create zipped bytes object
+    var bytes = encoder.encode(archive,
+        level: Deflate.BEST_COMPRESSION, output: outputStream);
+
+    // generate user download for zipped file
+    generatePODZipDownload(bytes, dateRangeString);
   }
 
   // --- Function to return a list of DO numbers with the date associated ---
   // --- also calls getPODData ---
-  Future<List> getDONumbers(data) async {
-    // decode json body
+  Future<List> getDONumbers(data, archive) async {
+    // decode json body containing all DOs per date
     var collections = jsonDecode(data)["collections"];
     // loop through body to find all dos
     var curDoList = [];
-    // add to archivezip
-    var encoder = ZipEncoder();
-    var archive = Archive();
 
     for (var job in collections) {
       // only take into account dos that are completed
@@ -153,17 +168,6 @@ class _LandingPageState extends State<LandingPage>
         // print(job.toString());
       }
     }
-
-    // Create outputstream object
-    var outputStream = OutputStream(
-      byteOrder: LITTLE_ENDIAN,
-    );
-    // Create zipped bytes object
-    var bytes = encoder.encode(archive,
-        level: Deflate.BEST_COMPRESSION, output: outputStream);
-
-    generatePODZipDownload(bytes); // generate user download for zipped file
-
     return curDoList;
   }
 
@@ -203,19 +207,25 @@ class _LandingPageState extends State<LandingPage>
     return archiveFiles;
   }
 
-  void generatePODZipDownload(zipbytes) {
+  void generatePODZipDownload(zipbytes, daterange) {
     // ~Create a download anchor for web to automatically download to path~
     final blob = Blob([zipbytes]);
     final url = Url.createObjectUrlFromBlob(blob);
     final anchor = document.createElement('a') as AnchorElement
       ..href = url
       ..style.display = 'none'
-      ..download = "PODList.zip";
+      ..download = "$daterange\_PODList.zip";
     document.body!.children.add(anchor);
     anchor.click();
     document.body!.children.remove(anchor);
     Url.revokeObjectUrl(url);
     EasyLoading.dismiss();
+  }
+
+  // Function to calculate number of DOs being called for progress indicator
+  int calculateNoOfDos() {
+    int numDays = 0;
+    return numDays;
   }
 
   // *** Main build widget for the Page ***
@@ -257,38 +267,43 @@ class _LandingPageState extends State<LandingPage>
         children: [
           // Card to view PODS on screen
           MediaQuery.of(context).size.width >= 1025
-              ? Container(
-                  height: 465,
-                  width: MediaQuery.of(context).size.width * 0.4,
-                  child: Card(
-                    child: masterPODList.length != 0
-                        ? GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              childAspectRatio: 0.9,
-                              mainAxisSpacing: 10,
-                              crossAxisCount: 1,
-                            ),
-                            itemCount: masterPODList.length,
-                            itemBuilder: (context, index) {
-                              // return Image.memory(masterPODList[index]);
-                              return Container(
-                                  padding: EdgeInsets.all(15),
-                                  child:
-                                      SfPdfViewer.memory(masterPODList[index]));
-                            },
-                          )
-                        : Center(
-                            child: Text(
-                            "No PODs loaded...",
-                            style: themeData.textTheme.headline3,
-                          )),
-                  ),
+              ? Row(
+                  children: [
+                    Container(
+                      height: 465,
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      child: Card(
+                        child: masterPODList.length != 0
+                            ? GridView.builder(
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  childAspectRatio: 0.9,
+                                  mainAxisSpacing: 10,
+                                  crossAxisCount: 1,
+                                ),
+                                itemCount: masterPODList.length,
+                                itemBuilder: (context, index) {
+                                  // return Image.memory(masterPODList[index]);
+                                  return Container(
+                                      padding: EdgeInsets.all(15),
+                                      child: SfPdfViewer.memory(
+                                          masterPODList[index]));
+                                },
+                              )
+                            : Center(
+                                child: Text(
+                                "No PODs loaded...",
+                                style: themeData.textTheme.headline3,
+                              )),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 100,
+                    ),
+                  ],
                 )
-              : Container(),
-          SizedBox(
-            width: 100,
-          ),
+              : SizedBox.shrink(),
+
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,

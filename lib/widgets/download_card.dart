@@ -1,4 +1,3 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -69,7 +68,9 @@ class _DownloadCardState extends State<DownloadCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width >= 725 ? 385 : double.infinity,
+      width: MediaQuery.of(context).size.width >= 725
+          ? 385
+          : MediaQuery.of(context).size.width * 0.7,
       child: Card(
         color: themeData.cardColor,
         elevation: 5.0,
@@ -93,7 +94,7 @@ class _DownloadCardState extends State<DownloadCard> {
                         height: 10,
                       ),
                       Text(
-                        'Selected range: ' + _range,
+                        'Date Range: ' + _range,
                         style: themeData.textTheme.subtitle1,
                       ),
                     ],
@@ -106,7 +107,6 @@ class _DownloadCardState extends State<DownloadCard> {
               // --- MAIN Date Picker Widget ---
               Container(
                 margin: EdgeInsets.zero,
-                width: double.infinity,
                 child: Card(
                   margin: EdgeInsets.zero,
                   color: Color(0xFF340909),
@@ -120,7 +120,7 @@ class _DownloadCardState extends State<DownloadCard> {
                         margin: EdgeInsets.only(top: 10),
                         width: MediaQuery.of(context).size.width >= 725
                             ? 300
-                            : MediaQuery.of(context).size.width * 0.75,
+                            : MediaQuery.of(context).size.width * 0.6,
                         child: SfDateRangePicker(
                           // Styling for the date picker
                           headerHeight: 50,
