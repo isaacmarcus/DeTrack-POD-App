@@ -6,9 +6,8 @@ import '../constants.dart';
 
 class DownloadCard extends StatefulWidget {
   final Function getData;
-  final Function sendFolder;
 
-  DownloadCard({required this.getData, required this.sendFolder});
+  DownloadCard({required this.getData});
 
   @override
   _DownloadCardState createState() => _DownloadCardState();
@@ -29,7 +28,6 @@ class _DownloadCardState extends State<DownloadCard> {
   String _dateCount = '';
   String _range = '';
   String _rangeCount = '';
-  String _folder = '';
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now();
 

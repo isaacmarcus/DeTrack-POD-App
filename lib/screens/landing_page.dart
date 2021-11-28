@@ -6,7 +6,6 @@ import 'dart:html';
 
 import 'package:archive/archive.dart';
 import 'package:detrack_pod_dl_app/constants.dart';
-import 'package:detrack_pod_dl_app/services/photo_album.dart';
 import 'package:detrack_pod_dl_app/widgets/download_card.dart';
 import 'package:detrack_pod_dl_app/widgets/menu_drawer.dart';
 import 'package:detrack_pod_dl_app/widgets/master_app_bar.dart';
@@ -15,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 /* --------------------------------------------------------------------------
@@ -57,32 +55,6 @@ class _LandingPageState extends State<LandingPage>
   // function to check on the menu drawer, only applies in mobile size
   bool _isDrawerClosed() {
     return _drawerSlideController.value == 0.0;
-  }
-
-  String selectedDirectory = '';
-
-  void pickFolder(date) {
-    selectedDirectory = date;
-  }
-
-  // --- Function to post json to get all collection DOs based on date ---
-  Future<dynamic> postCollectionDate(date) async {
-    Response response = await post(
-        Uri.parse('https://app.detrack.com/api/v1/collections/view/all.json'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-          'X-API-KEY': '4840603d74969363341bd6db9637d635971369c873959bd5'
-        },
-        body: jsonEncode(
-          <String, String>{
-            'date': date,
-          },
-        ));
-    if (response.statusCode == 200) {
-      return response;
-    } else {
-      return response.statusCode;
-    }
   }
 
   List masterDoList = []; // list with sorted DO Details
@@ -222,12 +194,6 @@ class _LandingPageState extends State<LandingPage>
     EasyLoading.dismiss();
   }
 
-  // Function to calculate number of DOs being called for progress indicator
-  int calculateNoOfDos() {
-    int numDays = 0;
-    return numDays;
-  }
-
   // *** Main build widget for the Page ***
   @override
   Widget build(BuildContext context) {
@@ -314,7 +280,6 @@ class _LandingPageState extends State<LandingPage>
                   children: <Widget>[
                     DownloadCard(
                       getData: getData,
-                      sendFolder: pickFolder,
                     ),
                   ],
                 ),
