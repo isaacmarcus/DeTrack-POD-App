@@ -67,7 +67,7 @@ class _LandingPageState extends State<LandingPage>
     String dateRangeString = DateFormat('yyyy-MM-dd').format(startDate) +
         " to " +
         DateFormat('yyyy-MM-dd').format(endDate);
-    // add to archivezip
+    // initialize encoder and archive
     var encoder = ZipEncoder();
     var archive = Archive();
     // Start loading popup
