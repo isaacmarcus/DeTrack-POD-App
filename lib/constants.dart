@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'Screens/about_page.dart';
-import 'Screens/contact_page.dart';
-import 'Screens/landing_page.dart';
-import 'Screens/work_page.dart';
+import 'screens/landing_page.dart';
 
 const kScreenTitlePadding = EdgeInsets.all(15);
 const kMasterPaddingL = EdgeInsets.all(60);

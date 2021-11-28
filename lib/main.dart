@@ -1,9 +1,6 @@
-import 'package:detrack_pod_dl_app/Screens/landing_page.dart';
-import 'package:detrack_pod_dl_app/constants.dart';
-import 'package:detrack_pod_dl_app/screens/about_page.dart';
-import 'package:detrack_pod_dl_app/screens/contact_page.dart';
-import 'package:detrack_pod_dl_app/screens/splash_page.dart';
-import 'package:detrack_pod_dl_app/screens/work_page.dart';
+import 'screens/landing_page.dart';
+import 'constants.dart';
+import 'screens/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
