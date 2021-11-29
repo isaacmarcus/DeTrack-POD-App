@@ -64,6 +64,7 @@ class _LandingPageState extends State<LandingPage>
   // --- Function to add DOs to master DO List ---
   // --- also calls getDONumbers ---
   void getData(startDate, endDate) async {
+    masterPODList.clear(); // reset the POD list viewer
     String dateRangeString = DateFormat('yyyy-MM-dd').format(startDate) +
         " to " +
         DateFormat('yyyy-MM-dd').format(endDate);
