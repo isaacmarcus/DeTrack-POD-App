@@ -7,7 +7,7 @@ jobs:
   build:
     name: Build Web
     env:
-      my_secret: ${{secrets.hosting_secret}}
+      my_secret: ${{secrets.HOSTING_SECRET}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -21,10 +21,10 @@ jobs:
           cd build/web
           git config --global init.defaultBranch main
           git init
-          git config --global user.email ${{secrets.email}}
+          git config --global user.email ${{secrets.EMAIL}}
           git config --global user.name isaacmarcus
           git status
-          git remote add origin https://${{secrets.hosting_secret}}@github.com/isaacmarcus/DeTrack-POD-App.git
+          git remote add origin https://${{secrets.HOSTING_SECRET}}@github.com/isaacmarcus/DeTrack-POD-App.git
           git checkout -b gh-pages
           git add --all
           git commit -m "update"
