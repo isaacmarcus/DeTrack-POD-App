@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/landing_page.dart';
 
+// Constant Paddings
 const kScreenTitlePadding = EdgeInsets.all(15);
 const kMasterPaddingL = EdgeInsets.all(60);
 const kMasterPaddingS = EdgeInsets.all(28);
@@ -12,6 +13,12 @@ const kSymPadLarge = EdgeInsets.symmetric(horizontal: 60);
 const kSymPadSmall = EdgeInsets.symmetric(horizontal: 28);
 const kCardPaddingL = EdgeInsets.all(16.0);
 
+// Screen sizes
+const double kMaxCardWidth = 400;
+const double kScreenSizeL = 1025;
+const double kScreenSizeM = 725;
+
+// App Name
 const kAppName = "DeTrack POD Downloader";
 
 // Remember to add new menu titles here when a new page is created

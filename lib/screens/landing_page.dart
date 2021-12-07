@@ -6,6 +6,7 @@ import 'dart:html';
 
 import 'package:archive/archive.dart';
 import 'package:detrack_pod_dl_app/constants.dart';
+import 'package:detrack_pod_dl_app/services/api_connection.dart';
 import 'package:detrack_pod_dl_app/widgets/download_card.dart';
 import 'package:detrack_pod_dl_app/widgets/menu_drawer.dart';
 import 'package:detrack_pod_dl_app/widgets/master_app_bar.dart';
@@ -34,7 +35,14 @@ class _LandingPageState extends State<LandingPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _drawerSlideController;
 
-  String _apiKey = "4840603d74969363341bd6db9637d635971369c873959bd5";
+  String _apiKey = "";
+  List masterDoList = []; // list with sorted DO Details
+  List masterPODList = []; // list to build viewer
+  List masterPODBytes = []; // list to contain PODs in bytes
+  String apiStatus = "Disconnected";
+  String podViewerStatus = "No PODs loaded...";
+
+  ApiConnection apiObj = ApiConnection();
 
   @override
   void initState() {
@@ -57,9 +65,32 @@ class _LandingPageState extends State<LandingPage>
     return _drawerSlideController.value == 0.0;
   }
 
-  List masterDoList = []; // list with sorted DO Details
-  List masterPODList = []; // list to build viewer
-  List masterPODBytes = []; // list to contain PODs in bytes
+  // --- Function to test a post to server and update apikey var ---
+  // --- also updates "connected" icon accordingly ---
+  void updateApiKey(keyInput) async {
+    print(_apiKey);
+    Response testResponse = await post(
+        Uri.parse('https://app.detrack.com/api/v1/collections/view/all.json'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'X-API-KEY': _apiKey
+        },
+        body: jsonEncode(
+          <String, String>{
+            'date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+          },
+        ));
+
+    setState(() {
+      if (apiObj.verifyConnection(testResponse, context)) {
+        _apiKey = keyInput;
+        apiStatus = "connected";
+      } else {
+        apiStatus = "disconnected";
+      }
+      print("status: $apiStatus");
+    });
+  }
 
   // --- Function to add DOs to master DO List ---
   // --- also calls getDONumbers ---
@@ -84,32 +115,35 @@ class _LandingPageState extends State<LandingPage>
           Uri.parse('https://app.detrack.com/api/v1/collections/view/all.json'),
           headers: <String, String>{
             'Content-Type': 'application/json',
-            'X-API-KEY': '4840603d74969363341bd6db9637d635971369c873959bd5'
+            'X-API-KEY': _apiKey
           },
           body: jsonEncode(
             <String, String>{
               'date': DateFormat('yyyy-MM-dd').format(curDate),
             },
           ));
+
       // check response if successful, if so execute getDoNumbers
-      if (response.statusCode == 200) {
+      if (apiStatus == "connected") {
         masterDoList.add(await getDONumbers(response.body, archive));
-        // print(masterDoList);
+
+        // Create outputstream object
+        var outputStream = OutputStream(
+          byteOrder: LITTLE_ENDIAN,
+        );
+        // Create zipped bytes object
+        var bytes = encoder.encode(archive,
+            level: Deflate.BEST_COMPRESSION, output: outputStream);
+
+        // generate user download for zipped file
+        apiObj.generatePODZipDownload(bytes, dateRangeString);
       } else {
-        print(response.statusCode);
+        setState(() {
+          podViewerStatus = "Please Connect to Server with API Key";
+        });
+        EasyLoading.dismiss();
       }
     }
-
-    // Create outputstream object
-    var outputStream = OutputStream(
-      byteOrder: LITTLE_ENDIAN,
-    );
-    // Create zipped bytes object
-    var bytes = encoder.encode(archive,
-        level: Deflate.BEST_COMPRESSION, output: outputStream);
-
-    // generate user download for zipped file
-    generatePODZipDownload(bytes, dateRangeString);
   }
 
   // --- Function to return a list of DO numbers with the date associated ---
@@ -156,7 +190,7 @@ class _LandingPageState extends State<LandingPage>
         Uri.parse('https://app.detrack.com/api/v1/collections/export.pdf'),
         headers: <String, String>{
           'Content-Type': 'application/json',
-          'X-API-KEY': '4840603d74969363341bd6db9637d635971369c873959bd5'
+          'X-API-KEY': _apiKey
         },
         body: jsonEncode(
           <String, String>{
@@ -180,21 +214,6 @@ class _LandingPageState extends State<LandingPage>
     return archiveFiles;
   }
 
-  void generatePODZipDownload(zipbytes, daterange) {
-    // ~Create a download anchor for web to automatically download to path~
-    final blob = Blob([zipbytes]);
-    final url = Url.createObjectUrlFromBlob(blob);
-    final anchor = document.createElement('a') as AnchorElement
-      ..href = url
-      ..style.display = 'none'
-      ..download = "$daterange\_PODList.zip";
-    document.body!.children.add(anchor);
-    anchor.click();
-    document.body!.children.remove(anchor);
-    Url.revokeObjectUrl(url);
-    EasyLoading.dismiss();
-  }
-
   // *** Main build widget for the Page ***
   @override
   Widget build(BuildContext context) {
@@ -210,12 +229,7 @@ class _LandingPageState extends State<LandingPage>
       body: Stack(
         children: [
           // Main page body content
-          Container(
-            color: Colors.transparent,
-            child: BackdropFilter(
-                filter: new ImageFilter.blur(sigmaX: 0.6, sigmaY: 0.6),
-                child: _buildContent()),
-          ),
+          _buildContent(),
           // Stacked Menu
           _buildDrawer(),
         ],
@@ -229,63 +243,151 @@ class _LandingPageState extends State<LandingPage>
       padding: MediaQuery.of(context).size.width >= 725
           ? kMasterPaddingL
           : kMasterPaddingS,
-      child: Row(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Card to view PODS on screen
-          MediaQuery.of(context).size.width >= 1025
-              ? Row(
+          // --- API KEY Card ---
+          Container(
+            width: MediaQuery.of(context).size.width >= 1025
+                ? double.infinity
+                : MediaQuery.of(context).size.width >= 725
+                    ? kMaxCardWidth
+                    : MediaQuery.of(context).size.width * 0.7,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                      height: 465,
-                      width: MediaQuery.of(context).size.width * 0.4,
-                      child: Card(
-                        child: masterPODList.length != 0
-                            ? GridView.builder(
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: 0.9,
-                                  mainAxisSpacing: 10,
-                                  crossAxisCount: 1,
-                                ),
-                                itemCount: masterPODList.length,
-                                itemBuilder: (context, index) {
-                                  // return Image.memory(masterPODList[index]);
-                                  return Container(
-                                      padding: EdgeInsets.all(15),
-                                      child: SfPdfViewer.memory(
-                                          masterPODList[index]));
-                                },
-                              )
-                            : Center(
-                                child: Text(
-                                "No PODs loaded...",
-                                style: themeData.textTheme.headline3,
-                              )),
+                    Text(
+                      "API Key: ",
+                      style: themeData.textTheme.subtitle1,
+                    ),
+                    Expanded(
+                      child: TextField(
+                        onChanged: (inp) {
+                          _apiKey = inp;
+                        },
+                        decoration: InputDecoration(
+                            constraints: BoxConstraints(
+                              minWidth: double.infinity,
+                              maxWidth: double.infinity,
+                              maxHeight: 43,
+                            ),
+                            isDense: true,
+                            hintText: "Enter API Key here"),
                       ),
                     ),
                     SizedBox(
-                      width: 100,
+                      width: 10,
                     ),
-                  ],
-                )
-              : SizedBox.shrink(),
-
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Center(
-                // CARD WIDGET FOR COLLECTIONS DOWNLOADER
-                child: Stack(
-                  children: <Widget>[
-                    DownloadCard(
-                      getData: getData,
+                    apiStatus == "connecting"
+                        ? SizedBox(
+                            child: CircularProgressIndicator(),
+                            width: 20,
+                            height: 20,
+                          )
+                        : apiStatus == "connected"
+                            ? Icon(
+                                Icons.check_circle_outline_rounded,
+                                size: 25,
+                                color: themeData.errorColor,
+                              )
+                            : Icon(
+                                Icons.remove_circle_outline_rounded,
+                                size: 25,
+                                color: Colors.grey[700],
+                              ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    // -- Connect Button --
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          apiStatus = "connecting";
+                          updateApiKey(_apiKey);
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Connect",
+                          style: themeData.textTheme.button,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(
+                          150,
+                          40,
+                        ),
+                        maximumSize: Size(200, 43),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
+          ),
+          SizedBox(height: 14),
+          Container(
+            constraints: BoxConstraints(
+              maxHeight: 515,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // --- Card to view PODS on screen ---
+                MediaQuery.of(context).size.width >= 1025
+                    ? Expanded(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Card(
+                                child: masterPODList.length != 0
+                                    ? GridView.builder(
+                                        gridDelegate:
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                          childAspectRatio: 0.9,
+                                          mainAxisSpacing: 10,
+                                          crossAxisCount: 1,
+                                        ),
+                                        itemCount: masterPODList.length,
+                                        itemBuilder: (context, index) {
+                                          return Container(
+                                              padding: EdgeInsets.all(15),
+                                              child: SfPdfViewer.memory(
+                                                  masterPODList[index]));
+                                        },
+                                      )
+                                    : Center(
+                                        child: Padding(
+                                        padding: kMasterPaddingS,
+                                        child: Text(
+                                          podViewerStatus,
+                                          style: themeData.textTheme.headline3,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      )),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 14,
+                            ),
+                          ],
+                        ),
+                      )
+                    : SizedBox.shrink(),
+                // SizedBox.shrink(),
+                DownloadCard(
+                  getData: getData,
+                  connected: apiStatus == "connected" ? true : false,
+                ),
+              ],
+            ),
           ),
         ],
       ),
