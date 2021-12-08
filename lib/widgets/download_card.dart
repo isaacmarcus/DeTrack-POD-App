@@ -82,21 +82,25 @@ class _DownloadCardState extends State<DownloadCard> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Collections",
-                        style: themeData.textTheme.headline3,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        'Date Range: ' + _range,
-                        style: themeData.textTheme.subtitle1,
-                      ),
-                    ],
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Collections",
+                          style: themeData.textTheme.headline3,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Date Range: ' + _range,
+                          // overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: themeData.textTheme.subtitle1,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
