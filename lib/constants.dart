@@ -17,9 +17,6 @@ const kAppName = "DeTrack POD Downloader";
 // Remember to add new menu titles here when a new page is created
 const kMenuTitles = [
   ['HOME', LandingPage.id],
-  // ['ABOUT', AboutPage.id],
-  // ['WORK', WorkPage.id],
-  // ['CONTACT', ContactPage.id],
 ];
 
 ThemeData themeData = ThemeData(
