@@ -67,29 +67,29 @@ class _MasterAppBarState extends State<MasterAppBar>
                 SizedBox(
                   width: 15,
                 ),
-                MediaQuery.of(context).size.width >= 1025
-                    ? Card(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text("API Key: ",
-                                  style: themeData.textTheme.subtitle1),
-                              Container(
-                                margin: EdgeInsets.zero,
-                                width: 350,
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                      isDense: true,
-                                      hintText: "Enter API Key here"),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : Container(),
+                // MediaQuery.of(context).size.width >= 1025
+                //     ? Card(
+                //         child: Padding(
+                //           padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                //           child: Row(
+                //             crossAxisAlignment: CrossAxisAlignment.center,
+                //             children: [
+                //               Text("API Key: ",
+                //                   style: themeData.textTheme.subtitle1),
+                //               Container(
+                //                 margin: EdgeInsets.zero,
+                //                 width: 350,
+                //                 child: TextField(
+                //                   decoration: InputDecoration(
+                //                       isDense: true,
+                //                       hintText: "Enter API Key here"),
+                //                 ),
+                //               ),
+                //             ],
+                //           ),
+                //         ),
+                //       )
+                //     : Container(),
                 Spacer(),
                 // Check if screen size is smaller than 725 logical pixels
                 MediaQuery.of(context).size.width >= 725

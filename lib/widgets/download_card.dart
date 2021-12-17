@@ -13,8 +13,9 @@ Widget Description: Main download card widget, only linking to collections
 
 class DownloadCard extends StatefulWidget {
   final Function getData;
+  bool connected;
 
-  DownloadCard({required this.getData});
+  DownloadCard({required this.getData, required this.connected});
 
   @override
   _DownloadCardState createState() => _DownloadCardState();
@@ -74,7 +75,7 @@ class _DownloadCardState extends State<DownloadCard> {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width >= 725
-          ? 385
+          ? kMaxCardWidth
           : MediaQuery.of(context).size.width * 0.7,
       child: Card(
         color: themeData.cardColor,
@@ -88,21 +89,25 @@ class _DownloadCardState extends State<DownloadCard> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Collections",
-                        style: themeData.textTheme.headline3,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        'Date Range: ' + _range,
-                        style: themeData.textTheme.subtitle1,
-                      ),
-                    ],
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Collections",
+                          style: themeData.textTheme.headline3,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Date Range: ' + _range,
+                          // overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: themeData.textTheme.subtitle1,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -164,7 +169,23 @@ class _DownloadCardState extends State<DownloadCard> {
               ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    widget.getData(_startDate, _endDate);
+                    widget.connected
+                        ? widget.getData(_startDate, _endDate)
+                        : ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                              "Not connected to DeTrack Server, please connect",
+                              style: themeData.textTheme.subtitle1,
+                            ),
+                            action: SnackBarAction(
+                              label: 'OK',
+                              textColor: themeData.errorColor,
+                              onPressed: () {
+                                // does nothing, just removes the snackbar
+                              },
+                            ),
+                            backgroundColor: Colors.grey.withOpacity(0.1),
+                          ));
+                    ;
                   });
                 },
                 child: Padding(
