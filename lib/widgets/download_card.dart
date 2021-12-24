@@ -4,6 +4,13 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../constants.dart';
 
+/* --------------------------------------------------------------------------
+
+Widget Title: Download Card
+Widget Description: Main download card widget, only linking to collections
+
+-----------------------------------------------------------------------------*/
+
 class DownloadCard extends StatefulWidget {
   final Function getData;
   bool connected;

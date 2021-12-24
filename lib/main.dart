@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      builder: EasyLoading.init(),
+      builder: EasyLoading.init(), // this is for a loading pop up
       debugShowCheckedModeBanner: false,
       title: 'DeTrack POD Downloader',
       theme: themeData,
@@ -21,9 +21,6 @@ class MyApp extends StatelessWidget {
       routes: {
         SplashPage.id: (context) => SplashPage(),
         LandingPage.id: (context) => LandingPage(),
-        // WorkPage.id: (context) => WorkPage(),
-        // AboutPage.id: (context) => AboutPage(),
-        // ContactPage.id: (context) => ContactPage(),
       },
     );
   }
