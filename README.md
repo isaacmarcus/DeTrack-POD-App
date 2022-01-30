@@ -1,6 +1,6 @@
-# Moire Playground
+# DeTrack POD App
 
-A Flutter WebApp to help users of the DeTrack software download "Proof of Delivery" en-masse using a simple and intuitive calender UI.
+A Flutter WebApp to help users of the DeTrack software download "Proof of Delivery" en-masse using a simple and intuitive calender UI. This app was created from the point of view of a user dealing with the issue of unavailable features that the service "DeTrack" had. "DeTrack" is a delivery management system that lets administrators manage and organize drivers to delivery and collection jobs. You can find out more at: https://www.detrack.com/  
 
 ## Getting Started
 
