@@ -1,3 +1,5 @@
+![preview_img](https://github.com/isaacmarcus/DeTrack-POD-App/blob/main/assets/images/detrackpod_ss1.PNG?raw=true)
+
 # DeTrack POD App
 
 A Flutter WebApp to help users of the DeTrack software download "Proof of Delivery" en-masse using a simple and intuitive calender UI. This app was created from the point of view of a user dealing with the issue of unavailable features that the service "DeTrack" had. "DeTrack" is a delivery management system that lets administrators manage and organize drivers to delivery and collection jobs. You can find out more at: https://www.detrack.com/  
@@ -27,6 +29,5 @@ None of the data and keys are stored so it will never have a risk of data being 
 - flutter_easyloading: ^3.0.3
 - fluttertoast: ^8.0.8
 
-## WebApp Preview
-![preview_img](https://github.com/isaacmarcus/DeTrack-POD-App/blob/main/assets/images/detrackpod_ss1.PNG?raw=true)
+
  
